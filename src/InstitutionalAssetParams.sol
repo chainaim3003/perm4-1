@@ -5,6 +5,7 @@ pragma solidity ^0.8.20;
  * @title InstitutionalAssetParams
  * @dev Data structures for institutional-grade RWA assets beyond simple art fractionalization
  * @notice Defines parameters for supply chain finance, trade finance, equipment finance, etc.
+ * @notice Enhanced with PYUSD cross-border capabilities for Rules 13 & 14
  */
 library InstitutionalAssetParams {
     // Asset type enumeration for institutional instruments
@@ -34,7 +35,7 @@ library InstitutionalAssetParams {
         LIQUIDATED             // Asset sold/recovered
     }
 
-    // Core institutional asset parameters
+    // Core institutional asset parameters (Enhanced with PYUSD support)
     struct InstitutionalAsset {
         // Corporate Identity (GLEIF Integration)
         string corporateName;           // "APPLE INC"
@@ -66,6 +67,12 @@ library InstitutionalAssetParams {
         uint256 totalFractions;        // Calculated optimal fraction count
         uint256 minimumFractionSize;   // Minimum investment per fraction
         uint256 targetLiquidity;       // Expected secondary market volume
+        
+        // PYUSD Cross-Border Integration (Rules 13 & 14)
+        uint256 pyusdAmount;          // PYUSD settlement amount (0 if not using PYUSD)
+        bool isCrossBorder;           // True if cross-border transaction
+        string buyerCountry;          // ISO country code of buyer (e.g., "US")
+        string sellerCountry;         // ISO country code of seller (e.g., "IN")
         
         // Operational Data
         AssetStatus status;            // Current lifecycle status
@@ -115,6 +122,15 @@ library InstitutionalAssetParams {
         uint256 liquidityScore
     );
 
+    // PYUSD-specific events (Rules 13 & 14)
+    event PYUSDCrossBorderTransaction(
+        address indexed asset,
+        string buyerCountry,
+        string sellerCountry,
+        uint256 pyusdAmount,
+        bool compliant
+    );
+
     // Utility functions for asset type handling
     function getAssetTypeMultiplier(AssetType assetType) internal pure returns (uint256) {
         if (assetType == AssetType.SUPPLY_CHAIN_INVOICE) return 1000; // $1K per fraction
@@ -151,5 +167,57 @@ library InstitutionalAssetParams {
         if (assetType == AssetType.TRADE_FINANCE) baseScore += 3;
         
         return baseScore > 100 ? 100 : baseScore;
+    }
+
+    // PYUSD compliance utilities (Rules 13 & 14)
+    function isCountryPYUSDCompliant(string memory countryCode) internal pure returns (bool) {
+        // FATF compliant countries for PYUSD cross-border
+        bytes32 code = keccak256(abi.encodePacked(countryCode));
+        
+        // Supported countries
+        if (code == keccak256("US")) return true;   // United States
+        if (code == keccak256("GB")) return true;   // United Kingdom  
+        if (code == keccak256("DE")) return true;   // Germany
+        if (code == keccak256("JP")) return true;   // Japan
+        if (code == keccak256("IN")) return true;   // India
+        if (code == keccak256("SG")) return true;   // Singapore
+        if (code == keccak256("CA")) return true;   // Canada
+        if (code == keccak256("AU")) return true;   // Australia
+        if (code == keccak256("FR")) return true;   // France
+        if (code == keccak256("IT")) return true;   // Italy
+        if (code == keccak256("ES")) return true;   // Spain
+        if (code == keccak256("NL")) return true;   // Netherlands
+        
+        // Restricted countries
+        if (code == keccak256("IR")) return false;  // Iran
+        if (code == keccak256("KP")) return false;  // North Korea
+        if (code == keccak256("CU")) return false;  // Cuba
+        if (code == keccak256("SY")) return false;  // Syria
+        
+        return false; // Default to not supported
+    }
+
+    function getCrossBorderPYUSDLimit(string memory buyerCountry, string memory sellerCountry) 
+        internal pure returns (uint256) {
+        bytes32 buyer = keccak256(abi.encodePacked(buyerCountry));
+        bytes32 seller = keccak256(abi.encodePacked(sellerCountry));
+        
+        // Country-specific limits (in wei, e.g., 50000000e18 = $50M)
+        if ((buyer == keccak256("US") && seller == keccak256("IN")) ||
+            (buyer == keccak256("IN") && seller == keccak256("US"))) {
+            return 50000000e18; // $50M for US-India corridor (RBI limits)
+        }
+        
+        if ((buyer == keccak256("US") && seller == keccak256("GB")) ||
+            (buyer == keccak256("GB") && seller == keccak256("US"))) {
+            return 100000000e18; // $100M for US-UK corridor
+        }
+        
+        if ((buyer == keccak256("US") && seller == keccak256("DE")) ||
+            (buyer == keccak256("DE") && seller == keccak256("US"))) {
+            return 100000000e18; // $100M for US-Germany corridor
+        }
+        
+        return 25000000e18; // $25M default limit
     }
 }

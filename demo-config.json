@@ -1,0 +1,196 @@
+{
+  "demoConfiguration": {
+    "title": "Institutional RWA Platform Demo Configuration",
+    "version": "2.0.0",
+    "description": "Configurable company data for FORTE compliance demos"
+  },
+  
+  "companies": {
+    "apple": {
+      "corporateName": "APPLE INC",
+      "legalEntityIdentifier": "HWUPKR0MPOU8FGXBT394",
+      "country": "US",
+      "creditRating": "BBB",
+      "industry": "Technology",
+      "riskProfile": "low"
+    },
+    "microsoft": {
+      "corporateName": "MICROSOFT CORPORATION", 
+      "legalEntityIdentifier": "XEBEDEBBPPM9N3JQFGFV",
+      "country": "US",
+      "creditRating": "AAA",
+      "industry": "Technology",
+      "riskProfile": "very_low"
+    },
+    "cipla": {
+      "corporateName": "CIPLA LIMITED",
+      "legalEntityIdentifier": "IN000000000000000001",
+      "country": "IN",
+      "creditRating": "A",
+      "industry": "Pharmaceutical",
+      "riskProfile": "low"
+    },
+    "siemens": {
+      "corporateName": "SIEMENS AG",
+      "legalEntityIdentifier": "DE000SIEMENS000000000",
+      "country": "DE", 
+      "creditRating": "A",
+      "industry": "Industrial",
+      "riskProfile": "low"
+    },
+    "toyota": {
+      "corporateName": "TOYOTA MOTOR CORPORATION",
+      "legalEntityIdentifier": "JP0000TOYOTA00000000000",
+      "country": "JP",
+      "creditRating": "AA",
+      "industry": "Automotive", 
+      "riskProfile": "very_low"
+    },
+    "test_company": {
+      "corporateName": "TEST CORP LIMITED",
+      "legalEntityIdentifier": "TEST000000000000000001",
+      "country": "US",
+      "creditRating": "BBB",
+      "industry": "Testing",
+      "riskProfile": "medium"
+    }
+  },
+  
+  "assetTemplates": {
+    "supply_chain_invoice": {
+      "assetType": "SUPPLY_CHAIN_INVOICE",
+      "description": "{days}-day supplier invoice from verified vendor",
+      "defaultMaturityDays": 90,
+      "defaultInterestRate": 850,
+      "defaultPrincipalAmount": 5000000,
+      "documents": ["invoice_001.pdf", "bill_of_lading.pdf", "purchase_order.pdf"]
+    },
+    "trade_finance": {
+      "assetType": "TRADE_FINANCE", 
+      "description": "International trade finance with {country1}-{country2} compliance",
+      "defaultMaturityDays": 120,
+      "defaultInterestRate": 900,
+      "defaultPrincipalAmount": 3000000,
+      "documents": ["letter_of_credit.pdf", "export_license.pdf", "compliance_docs.pdf"]
+    },
+    "equipment_finance": {
+      "assetType": "EQUIPMENT_FINANCE",
+      "description": "Equipment financing for {industry} sector",
+      "defaultMaturityDays": 365,
+      "defaultInterestRate": 750,
+      "defaultPrincipalAmount": 10000000,
+      "documents": ["equipment_valuation.pdf", "lease_agreement.pdf"]
+    }
+  },
+  
+  "countries": {
+    "US": { "name": "United States", "currency": "USD", "pyusdSupported": true },
+    "IN": { "name": "India", "currency": "INR", "pyusdSupported": true, "rbiCompliance": true },
+    "DE": { "name": "Germany", "currency": "EUR", "pyusdSupported": true },
+    "JP": { "name": "Japan", "currency": "JPY", "pyusdSupported": true },
+    "GB": { "name": "United Kingdom", "currency": "GBP", "pyusdSupported": true },
+    "SG": { "name": "Singapore", "currency": "SGD", "pyusdSupported": true },
+    "IR": { "name": "Iran", "currency": "IRR", "pyusdSupported": false, "restricted": true }
+  },
+  
+  "passingScenarios": [
+    {
+      "name": "Apple Supply Chain Invoice",
+      "company": "apple",
+      "assetTemplate": "supply_chain_invoice", 
+      "buyerCountry": "US",
+      "sellerCountry": "DE",
+      "pyusdAmount": 5000000,
+      "customizations": {
+        "principalAmount": 5000000,
+        "maturityDays": 90
+      }
+    },
+    {
+      "name": "US-India IT Services Payment",
+      "company": "microsoft",
+      "assetTemplate": "trade_finance",
+      "buyerCountry": "US", 
+      "sellerCountry": "IN",
+      "pyusdAmount": 2400000,
+      "customizations": {
+        "principalAmount": 2400000,
+        "maturityDays": 60,
+        "interestRate": 750,
+        "description": "US-India IT services payment with RBI compliance"
+      }
+    },
+    {
+      "name": "India-US Pharmaceutical Export",
+      "company": "cipla",
+      "assetTemplate": "trade_finance",
+      "buyerCountry": "IN",
+      "sellerCountry": "US", 
+      "pyusdAmount": 3000000,
+      "customizations": {
+        "principalAmount": 3000000,
+        "maturityDays": 120,
+        "description": "India-US pharmaceutical export with FDA approval"
+      }
+    }
+  ],
+  
+  "failingScenarios": [
+    {
+      "name": "PYUSD Peg Instability",
+      "company": "apple",
+      "assetTemplate": "supply_chain_invoice",
+      "buyerCountry": "US",
+      "sellerCountry": "DE",
+      "pyusdAmount": 60000000,
+      "violation": "RULE_13",
+      "customizations": {
+        "principalAmount": 60000000,
+        "description": "Large PYUSD transaction exceeding limits"
+      }
+    },
+    {
+      "name": "Cross-Border PYUSD Restriction", 
+      "company": "test_company",
+      "assetTemplate": "trade_finance",
+      "buyerCountry": "US",
+      "sellerCountry": "IR",
+      "pyusdAmount": 5000000,
+      "violation": "RULE_14",
+      "customizations": {
+        "legalEntityIdentifier": "RESTRICTED000000000000",
+        "corporateName": "RISKY CORP",
+        "creditRating": "CCC",
+        "description": "Cross-border payment to restricted jurisdiction"
+      }
+    },
+    {
+      "name": "OFAC Sanctions Violation",
+      "company": "apple", 
+      "assetTemplate": "supply_chain_invoice",
+      "buyerCountry": "US",
+      "sellerCountry": "DE",
+      "pyusdAmount": 5000000,
+      "violation": "RULE_02",
+      "customizations": {
+        "recipient": "0x1111111111111111111111111111111111111111"
+      }
+    }
+  ],
+  
+  "testAddresses": {
+    "sanctioned": "0x1111111111111111111111111111111111111111",
+    "clean": [
+      "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC", 
+      "0x90F79bf6EB2c4f870365E785982E1f101E93b906"
+    ]
+  },
+  
+  "defaultSettings": {
+    "totalFractions": 5000,
+    "minimumFractionSize": 1000,
+    "transferAmount": 1000,
+    "isCrossBorder": true
+  }
+}

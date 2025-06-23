@@ -11,126 +11,6 @@ import "./InstitutionalAssetParams.sol";
  * @notice Transforms art fractionalization into sophisticated financial instrument tokenization
  */
 contract InstitutionalAssetFactory {
-    /**
-     * FORTE Compliance Modifier - Final Corrected Version
-     * Policy: Institutional RWA Complete Compliance
-     * Rules: 12 institutional compliance rules
-     * Generated: 2025-06-23T18:30:47.869Z
-     * Status: Ready for compilation
-     */
-    modifier forteCompliance(bytes memory ruleData) {
-        require(address(zkPretAdapter) != address(0), "ZK PRET adapter not set");
-        
-        // Decode rule data for comprehensive checking
-        InstitutionalAssetParams.InstitutionalAsset memory params = 
-            abi.decode(ruleData, (InstitutionalAssetParams.InstitutionalAsset));
-        
-        // FORTE RULE 1: Enhanced KYC + GLEIF Verification
-        require(
-            zkPretAdapter.isGLEIFVerified(params.legalEntityIdentifier),
-            "FORTE RULE 1 VIOLATION: GLEIF LEI verification required"
-        );
-
-        // FORTE RULE 2: Enhanced OFAC Real-time Check
-        // Using basic sanction check with known sanctioned address
-        require(
-            params.corporateWallet != address(0x1111111111111111111111111111111111111111),
-            "FORTE RULE 2 VIOLATION: OFAC sanctions violation detected"
-        );
-
-        // FORTE RULE 3: Cross-border Sanctions Check
-        require(
-            params.corporateWallet != address(0) && params.manager != address(0),
-            "FORTE RULE 3 VIOLATION: Invalid addresses for cross-border compliance"
-        );
-
-        // FORTE RULE 4: GLEIF Corporate Registration
-        require(
-            bytes(params.legalEntityIdentifier).length == 20,
-            "FORTE RULE 4 VIOLATION: Invalid LEI format - must be 20 characters"
-        );
-
-        // FORTE RULE 5: BPMN Business Process Compliance
-        require(
-            zkPretAdapter.isBPMNCompliant(params.assetDescription),
-            "FORTE RULE 5 VIOLATION: Business process compliance verification failed"
-        );
-
-        // FORTE RULE 6: ACTUS Risk Assessment
-        (uint256 riskScore, uint256 liquidityScore) = zkPretAdapter.getACTUSRiskScore(
-            abi.encodePacked(params.corporateName, params.principalAmount)
-        );
-        require(
-            riskScore <= 500,
-            "FORTE RULE 6 VIOLATION: ACTUS risk assessment - risk too high"
-        );
-
-        // FORTE RULE 7: DCSA Trade Document Integrity
-        require(
-            zkPretAdapter.isDCSAVerified(params.documentHash),
-            "FORTE RULE 7 VIOLATION: DCSA trade document verification failed"
-        );
-
-        // FORTE RULE 8: Optimal Fraction Calculation
-        InstitutionalAssetParams.FractionParams memory fractionParams = 
-            zkPretAdapter.calculateOptimalFractions(params.principalAmount, params.assetType);
-        require(
-            fractionParams.optimalCount >= 10 && fractionParams.optimalCount <= 10000,
-            "FORTE RULE 8 VIOLATION: Fraction count outside optimal range"
-        );
-
-        // FORTE RULE 9: Metadata Completeness Score
-        InstitutionalAssetParams.MetadataScore memory score = 
-            zkPretAdapter.calculateMetadataScore(params);
-        require(
-            score.totalScore >= 70,
-            "FORTE RULE 9 VIOLATION: Insufficient metadata completeness score"
-        );
-
-        // FORTE RULE 10: Minimum Fraction Threshold
-        require(
-            fractionParams.minimumSize >= 500e18,
-            "FORTE RULE 10 VIOLATION: Fraction size below minimum $500 threshold"
-        );
-
-        // FORTE RULE 11: Fraction Liquidity Optimization
-        require(
-            fractionParams.optimalCount >= 10 && fractionParams.optimalCount <= 10000,
-            "FORTE RULE 11 VIOLATION: Fraction count outside optimal liquidity range"
-        );
-
-        // FORTE RULE 12: Enhanced Metadata Enforcement
-        (bool meetsThreshold, uint8 currentScore, uint8 requiredScore) = 
-            zkPretAdapter.checkMetadataThreshold(params);
-        require(
-            meetsThreshold,
-            string(abi.encodePacked(
-                "FORTE RULE 12 VIOLATION: Metadata score ",
-                Strings.toString(currentScore),
-                " below required ",
-                Strings.toString(requiredScore)
-            ))
-        );
-
-        // FORTE RULE 13: PYUSD Stablecoin Peg Verification
-        // Using principalAmount as proxy for PYUSD amounts since pyusdAmount field doesn't exist
-        require(
-            params.principalAmount <= 50000000e18, // $50M max for stability
-            "FORTE RULE 13 VIOLATION: Transaction amount exceeds PYUSD stability limits"
-        );
-
-        // FORTE RULE 14: Cross-Border PYUSD Settlement Compliance
-        // Using corporate vs manager address difference as proxy for cross-border detection
-        if (params.corporateWallet != params.manager) {
-            require(
-                params.principalAmount <= 25000000e18, // $25M max for cross-border
-                "FORTE RULE 14 VIOLATION: Cross-border transaction exceeds compliance limits"
-            );
-        }
-
-        _;
-    }
-
     using InstitutionalAssetParams for *;
 
     // State variables
@@ -167,7 +47,7 @@ contract InstitutionalAssetFactory {
      */
     function createInstitutionalAsset(
         InstitutionalAssetParams.InstitutionalAsset memory params
-    ) external forteCompliance(abi.encode(params)) returns (address assetContract) {
+    ) external returns (address assetContract) {
         
         // FORTE RULE 1: Enhanced KYC + GLEIF Verification
         require(

@@ -18,21 +18,35 @@
     "working-demo": "tsx working-demo.ts",
     "real-demo": "tsx real-demo.ts",
     "forte-cloud-demo": "tsx forte-cloud-demo.ts",
+    "cloud-forte-demo": "tsx cloud-forte-demo.ts",
     "debug-demo": "tsx debug-demo.ts",
     "complete-demo": "tsx complete-integration-demo.ts",
+    "configurable-demo": "tsx configurable-demo.ts",
+    "configurable-pass": "tsx configurable-demo.ts pass",
+    "configurable-fail": "tsx configurable-demo.ts fail",
+    "list-companies": "tsx configurable-demo.ts companies",
     "test-typescript": "npx tsc --noEmit",
     "validate-setup": "node test-fix.js"
   },
   "dependencies": {
-    "ethers": "^6.8.0",
-    "dotenv": "^16.3.1"
+    "axios": "^1.10.0",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.8.0"
   },
   "devDependencies": {
+    "@types/node": "^20.8.0",
     "tsx": "^4.7.0",
-    "typescript": "^5.2.2",
-    "@types/node": "^20.8.0"
+    "typescript": "^5.2.2"
   },
-  "keywords": ["RWA", "DeFi", "Institutional", "Compliance", "FORTE", "ZK-PRET", "PYUSD"],
+  "keywords": [
+    "RWA",
+    "DeFi",
+    "Institutional",
+    "Compliance",
+    "FORTE",
+    "ZK-PRET",
+    "PYUSD"
+  ],
   "author": "Institutional RWA Team",
   "license": "MIT"
 }

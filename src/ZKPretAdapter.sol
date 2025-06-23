@@ -7,6 +7,7 @@ import "./InstitutionalAssetParams.sol";
  * @title ZKPretAdapter
  * @dev Integration layer for ZK PRET compliance verification systems
  * @notice Bridges on-chain FORTE rules with off-chain ZK PRET verification
+ * @notice Enhanced with PYUSD cross-border capabilities for Rules 13 & 14
  */
 contract ZKPretAdapter {
     using InstitutionalAssetParams for *;
@@ -22,6 +23,10 @@ contract ZKPretAdapter {
     event BPMNComplianceChecked(bytes32 indexed processHash, bool compliant, uint256 timestamp);
     event ACTUSRiskAssessed(bytes32 indexed assetHash, uint256 riskScore, uint256 liquidityScore);
     event DCSADocumentVerified(bytes32 indexed documentHash, bool verified, uint256 timestamp);
+
+    // PYUSD-specific events (Rules 13 & 14)
+    event PYUSDPegStabilityChecked(uint256 amount, bool stable, uint256 timestamp);
+    event CrossBorderPYUSDComplianceChecked(string buyerCountry, string sellerCountry, uint256 amount, bool compliant);
 
     // Administrative controls
     address public owner;
@@ -195,6 +200,54 @@ contract ZKPretAdapter {
         currentScore = score.totalScore;
         requiredScore = InstitutionalAssetParams.getMinimumMetadataScore(asset.assetType, asset.principalAmount);
         meetsThreshold = currentScore >= requiredScore;
+    }
+
+    // PYUSD compliance functions for Rules 13 & 14
+    
+    /**
+     * @dev FORTE Rule 13: PYUSD Stablecoin Peg Verification
+     * @param pyusdAmount Amount of PYUSD for the transaction
+     * @return stable Whether PYUSD peg is stable for this amount
+     */
+    function isPYUSDPegStable(uint256 pyusdAmount) external returns (bool stable) {
+        // Mock PYUSD peg stability check
+        // In production, this would check:
+        // - Paxos reserve ratios
+        // - PYUSD/USD price on DEXs
+        // - Liquidity pool depths
+        
+        if (pyusdAmount > 50000000e18) { // $50M+ affects stability
+            stable = false;
+        } else {
+            stable = true; // Demo: assume peg is stable for smaller amounts
+        }
+        
+        emit PYUSDPegStabilityChecked(pyusdAmount, stable, block.timestamp);
+    }
+
+    /**
+     * @dev FORTE Rule 14: Cross-Border PYUSD Settlement Compliance
+     * @param buyerCountry ISO country code of buyer
+     * @param sellerCountry ISO country code of seller  
+     * @param pyusdAmount Amount of PYUSD for cross-border transaction
+     * @return compliant Whether transaction meets cross-border compliance
+     */
+    function isCrossBorderPYUSDCompliant(
+        string memory buyerCountry,
+        string memory sellerCountry, 
+        uint256 pyusdAmount
+    ) external returns (bool compliant) {
+        // Check if both countries support PYUSD
+        if (!InstitutionalAssetParams.isCountryPYUSDCompliant(buyerCountry) ||
+            !InstitutionalAssetParams.isCountryPYUSDCompliant(sellerCountry)) {
+            compliant = false;
+        } else {
+            // Check cross-border limits
+            uint256 maxLimit = InstitutionalAssetParams.getCrossBorderPYUSDLimit(buyerCountry, sellerCountry);
+            compliant = pyusdAmount <= maxLimit;
+        }
+        
+        emit CrossBorderPYUSDComplianceChecked(buyerCountry, sellerCountry, pyusdAmount, compliant);
     }
 
     // Administrative functions

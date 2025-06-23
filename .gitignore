@@ -1,0 +1,14 @@
+node_modules/
+out/
+cache/
+.env
+.vscode/
+.idea/
+*.log
+coverage/
+typechain/
+artifacts/
+cache_hardhat/
+coverage.json
+.DS_Store
+Thumbs.db

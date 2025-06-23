@@ -1,0 +1,25 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc = "0.8.20"
+optimizer = true
+optimizer_runs = 200
+via_ir = true
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "@forte/=lib/forte-contracts/src/",
+    "forge-std/=lib/forge-std/src/"
+]
+
+[rpc_endpoints]
+forte_local = "http://localhost:8545"
+bnb_testnet = "https://data-seed-prebsc-1-s1.binance.org:8545"
+sepolia = "https://ethereum-sepolia-rpc.publicnode.com"
+flow_testnet = "https://rest-testnet.onflow.org"
+supra_testnet = "https://rpc-testnet.supra.com"
+
+[etherscan]
+forte = { key = "${FORTE_API_KEY}", url = "https://explorer.forte.network/api" }
+bnb = { key = "${BSC_API_KEY}", url = "https://api-testnet.bscscan.com/api" }
+sepolia = { key = "${ETHERSCAN_API_KEY}", url = "https://api-sepolia.etherscan.io/api" }

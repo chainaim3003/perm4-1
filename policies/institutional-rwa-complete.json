@@ -1,0 +1,448 @@
+{
+  "policyVersion": "1.0.0",
+  "policyName": "Institutional RWA Complete Compliance",
+  "description": "Comprehensive 12-rule institutional-grade RWA compliance leveraging ZK PRET verification",
+  "rules": [
+    {
+      "ruleId": "RULE_01",
+      "name": "Enhanced KYC with GLEIF Verification",
+      "description": "Corporate KYC verification enhanced with GLEIF LEI validation",
+      "priority": "HIGH",
+      "action": "DENY",
+      "conditions": {
+        "and": [
+          {
+            "function": "requireGLEIFVerification",
+            "params": ["lei"],
+            "comparison": "equals",
+            "value": true
+          },
+    {
+      "ruleId": "RULE_13",
+      "name": "PYUSD Stablecoin Peg Verification",
+      "description": "Ensures PYUSD maintains 1:1 USD peg and sufficient reserves for institutional trades",
+      "priority": "HIGH",
+      "action": "DENY",
+      "conditions": {
+        "and": [
+          {
+            "function": "checkPYUSDPegStability",
+            "params": ["pyusdAmount"],
+            "comparison": "within",
+            "value": [0.995, 1.005]
+          },
+          {
+            "function": "validatePaxosReserves",
+            "params": ["principalAmount"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "checkPYUSDLiquidity",
+            "params": ["pyusdAmount"],
+            "comparison": "greaterThanOrEqual",
+            "value": 1000000
+          }
+        ]
+      },
+      "message": "PYUSD peg instability or insufficient reserves for institutional transaction"
+    },
+    {
+      "ruleId": "RULE_14",
+      "name": "Cross-Border PYUSD Settlement Compliance",
+      "description": "Validates cross-border PYUSD transactions comply with both source and destination country regulations",
+      "priority": "CRITICAL",
+      "action": "DENY",
+      "conditions": {
+        "and": [
+          {
+            "function": "validateCountryPYUSDCompliance",
+            "params": ["buyerCountry", "sellerCountry"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "checkCrossBorderLimits",
+            "params": ["pyusdAmount", "buyerCountry", "sellerCountry"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "validateFATFCompliance",
+            "params": ["buyerCountry", "sellerCountry"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "checkRemittanceRegulations",
+            "params": ["pyusdAmount", "buyerCountry", "sellerCountry"],
+            "comparison": "equals",
+            "value": true
+          }
+        ]
+      },
+      "message": "Cross-border PYUSD transaction violates source or destination country regulations"
+    },
+          {
+            "function": "checkKYCLevel",
+            "params": ["sender"],
+            "comparison": "greaterThanOrEqual",
+            "value": 3
+          }
+        ]
+      },
+      "message": "Enhanced KYC with GLEIF verification required for institutional assets"
+    },
+    {
+      "ruleId": "RULE_02", 
+      "name": "Enhanced OFAC Real-time Check",
+      "description": "Real-time OFAC sanctions screening with enhanced intelligence",
+      "priority": "CRITICAL",
+      "action": "DENY",
+      "conditions": {
+        "and": [
+          {
+            "function": "checkOFACSanctions",
+            "params": ["recipient"],
+            "comparison": "equals",
+            "value": false
+          },
+          {
+            "function": "checkRealtimeSanctions",
+            "params": ["recipient"],
+            "comparison": "equals", 
+            "value": false
+          }
+        ]
+      },
+      "message": "Recipient appears on OFAC sanctions list"
+    },
+    {
+      "ruleId": "RULE_03",
+      "name": "Enhanced Sanctions Cross-border Check",
+      "description": "Multi-jurisdictional sanctions screening for international compliance",
+      "priority": "HIGH",
+      "action": "DENY",
+      "conditions": {
+        "and": [
+          {
+            "function": "checkCrossBorderSanctions",
+            "params": ["sender", "recipient"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "validateJurisdiction",
+            "params": ["transaction"],
+            "comparison": "equals",
+            "value": true
+          }
+        ]
+      },
+      "message": "Cross-border sanctions violation detected"
+    },
+    {
+      "ruleId": "RULE_04",
+      "name": "GLEIF Corporate Registration Verification", 
+      "description": "ZK PRET GLEIF integration for corporate entity verification",
+      "priority": "HIGH",
+      "action": "DENY",
+      "conditions": {
+        "and": [
+          {
+            "function": "zkPretGLEIFVerification",
+            "params": ["legalEntityIdentifier"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "validateLEIFormat",
+            "params": ["legalEntityIdentifier"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "checkLEIStatus",
+            "params": ["legalEntityIdentifier"],
+            "comparison": "equals",
+            "value": "ACTIVE"
+          }
+        ]
+      },
+      "message": "GLEIF LEI verification failed - invalid or inactive LEI"
+    },
+    {
+      "ruleId": "RULE_05",
+      "name": "BPMN Business Process Compliance",
+      "description": "ZK PRET BPMN integration for business process verification",
+      "priority": "MEDIUM",
+      "action": "DENY", 
+      "conditions": {
+        "and": [
+          {
+            "function": "zkPretBPMNVerification",
+            "params": ["assetDescription"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "validateBusinessProcess",
+            "params": ["processDefinition"],
+            "comparison": "greaterThanOrEqual",
+            "value": 80
+          }
+        ]
+      },
+      "message": "Business process compliance verification failed"
+    },
+    {
+      "ruleId": "RULE_06",
+      "name": "ACTUS Risk Assessment Threshold",
+      "description": "ZK PRET ACTUS integration for sophisticated risk assessment",
+      "priority": "HIGH",
+      "action": "DENY",
+      "conditions": {
+        "and": [
+          {
+            "function": "zkPretACTUSRiskScore",
+            "params": ["assetData"],
+            "comparison": "lessThanOrEqual", 
+            "value": 500
+          },
+          {
+            "function": "validateLiquidityScore",
+            "params": ["assetData"],
+            "comparison": "greaterThanOrEqual",
+            "value": 300
+          },
+          {
+            "function": "checkStressTesting",
+            "params": ["assetData"],
+            "comparison": "equals",
+            "value": true
+          }
+        ]
+      },
+      "message": "ACTUS risk assessment failed - risk too high or insufficient liquidity"
+    },
+    {
+      "ruleId": "RULE_07",
+      "name": "DCSA Trade Document Integrity",
+      "description": "ZK PRET DCSA integration for trade document verification",
+      "priority": "MEDIUM",
+      "action": "DENY",
+      "conditions": {
+        "and": [
+          {
+            "function": "zkPretDCSAVerification", 
+            "params": ["documentHash"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "validateTradeDocuments",
+            "params": ["tradeDocuments"],
+            "comparison": "greaterThanOrEqual",
+            "value": 1
+          }
+        ]
+      },
+      "message": "DCSA trade document verification failed"
+    },
+    {
+      "ruleId": "RULE_08",
+      "name": "Optimal Fraction Calculation",
+      "description": "AI-powered optimal fraction count calculation for liquidity optimization",
+      "priority": "MEDIUM",
+      "action": "ADJUST",
+      "conditions": {
+        "and": [
+          {
+            "function": "calculateOptimalFractions",
+            "params": ["principalAmount", "assetType"],
+            "comparison": "within",
+            "value": [10, 10000]
+          },
+          {
+            "function": "validateFractionSize",
+            "params": ["principalAmount", "totalFractions"],
+            "comparison": "greaterThanOrEqual",
+            "value": 500
+          }
+        ]
+      },
+      "message": "Fraction count optimized for asset type and liquidity requirements"
+    },
+    {
+      "ruleId": "RULE_09",
+      "name": "Metadata Completeness Score",
+      "description": "Comprehensive 100-point metadata scoring system",
+      "priority": "MEDIUM",
+      "action": "WARN",
+      "conditions": {
+        "and": [
+          {
+            "function": "calculateMetadataScore",
+            "params": ["assetData"],
+            "comparison": "greaterThanOrEqual",
+            "value": 70
+          },
+          {
+            "function": "validateGLEIFComponent",
+            "params": ["assetData"],
+            "comparison": "greaterThanOrEqual", 
+            "value": 15
+          },
+          {
+            "function": "validateBPMNComponent",
+            "params": ["assetData"],
+            "comparison": "greaterThanOrEqual",
+            "value": 10
+          }
+        ]
+      },
+      "message": "Metadata completeness score below institutional standards"
+    },
+    {
+      "ruleId": "RULE_10",
+      "name": "Minimum Fraction Threshold",
+      "description": "Prevent dust trading with minimum viable fraction sizes",
+      "priority": "MEDIUM", 
+      "action": "DENY",
+      "conditions": {
+        "and": [
+          {
+            "function": "checkMinimumFractionSize",
+            "params": ["transferAmount"],
+            "comparison": "greaterThanOrEqual",
+            "value": 500
+          },
+          {
+            "function": "validateAssetTypeMinimum",
+            "params": ["assetType", "transferAmount"],
+            "comparison": "equals",
+            "value": true
+          }
+        ]
+      },
+      "message": "Transfer amount below minimum fraction threshold for institutional trading"
+    },
+    {
+      "ruleId": "RULE_11",
+      "name": "Fraction Liquidity Optimization",
+      "description": "Dynamic liquidity scoring for optimal secondary market trading",
+      "priority": "LOW",
+      "action": "WARN",
+      "conditions": {
+        "and": [
+          {
+            "function": "calculateLiquidityScore",
+            "params": ["totalFractions", "assetType"],
+            "comparison": "greaterThanOrEqual",
+            "value": 100
+          },
+          {
+            "function": "checkSweetSpotRange",
+            "params": ["totalFractions"],
+            "comparison": "within",
+            "value": [100, 5000]
+          }
+        ]
+      },
+      "message": "Fraction count may impact secondary market liquidity"
+    },
+    {
+      "ruleId": "RULE_12",
+      "name": "Enhanced Metadata Completeness Enforcement",
+      "description": "Asset-specific metadata thresholds with automated improvement suggestions",
+      "priority": "HIGH",
+      "action": "DENY",
+      "conditions": {
+        "and": [
+          {
+            "function": "checkMetadataThreshold",
+            "params": ["assetData"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "validatePrincipalAmountRequirements",
+            "params": ["principalAmount", "metadataScore"],
+            "comparison": "equals",
+            "value": true
+          },
+          {
+            "function": "checkAssetTypeCompliance",
+            "params": ["assetType", "metadataScore"],
+            "comparison": "equals",
+            "value": true
+          }
+        ]
+      },
+      "message": "Metadata completeness below required threshold for asset type and principal amount"
+    }
+  ],
+  "ruleChain": [
+    "RULE_01", "RULE_02", "RULE_03", "RULE_04", "RULE_05", "RULE_06", 
+    "RULE_07", "RULE_08", "RULE_09", "RULE_10", "RULE_11", "RULE_12",
+    "RULE_13", "RULE_14"
+  ],
+  "zkPretIntegrations": {
+    "GLEIF": {
+      "verifierPath": "../clonetest/zk-pret-test-v3.5/test/GLEIFVerificationTestWithSign.js",
+      "rules": ["RULE_01", "RULE_04"]
+    },
+    "BPMN": {
+      "verifierPath": "../clonetest/zk-pret-test-v3.5/test/BusinessProcessIntegrityVerificationFileTestWithSign.js", 
+      "rules": ["RULE_05"]
+    },
+    "ACTUS": {
+      "verifierPath": "../clonetest/zk-pret-test-v3.5/test/RiskLiquidityACTUSVerifierTest",
+      "rules": ["RULE_06"]
+    },
+    "DCSA": {
+      "verifierPath": "../clonetest/zk-pret-test-v3.5/test/BusinessStandardDataIntegrityVerificationTest",
+      "rules": ["RULE_07"]
+    }
+  },
+  "complianceThresholds": {
+    "metadataScore": {
+      "minimum": 70,
+      "institutional": 85,
+      "premium": 95
+    },
+    "riskScore": {
+      "maximum": 500,
+      "warning": 300,
+      "excellent": 100
+    },
+    "fractionSizes": {
+      "SUPPLY_CHAIN_INVOICE": 1000,
+      "EQUIPMENT_FINANCE": 10000, 
+      "TRADE_FINANCE": 5000,
+      "WORKING_CAPITAL": 2000,
+      "COMMERCIAL_REAL_ESTATE": 25000,
+      "CORPORATE_BONDS": 1000,
+      "STRUCTURED_PRODUCTS": 50000
+    },
+    "pyusdCompliance": {
+      "pegStabilityRange": [0.995, 1.005],
+      "minimumLiquidity": 1000000,
+      "maxCrossBorderAmount": 50000000,
+      "supportedCountries": ["US", "GB", "DE", "JP", "IN", "SG", "CA", "AU"],
+      "restrictedCountries": ["IR", "KP", "CU"],
+      "fatfCompliantOnly": true
+    }
+  },
+  "emergencyControls": {
+    "circuitBreaker": {
+      "enabled": true,
+      "triggers": ["DEFAULT", "SANCTIONS_VIOLATION", "COMPLIANCE_FAILURE"]
+    },
+    "pauseConditions": [
+      "RULE_02_VIOLATION",
+      "RULE_03_VIOLATION", 
+      "EMERGENCY_TRIGGER"
+    ]
+  }
+}

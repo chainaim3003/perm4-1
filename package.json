@@ -1,0 +1,38 @@
+{
+  "name": "institutional-rwa-platform",
+  "version": "1.0.0",
+  "description": "Institutional-grade RWA tokenization platform with ZK PRET compliance",
+  "type": "module",
+  "scripts": {
+    "build": "forge build",
+    "test": "forge test",
+    "deploy": "forge script script/Deploy.s.sol --broadcast",
+    "setup-policies": "tsx sdk.ts setupPolicy policies/institutional-rwa-complete.json",
+    "demo-pass": "tsx demo.ts pass",
+    "demo-fail": "tsx demo.ts fail",
+    "demo-all": "tsx demo.ts all",
+    "demo-pyusd": "tsx pyusd-demo.ts",
+    "pyusd-faucet": "tsx pyusd-demo.ts faucet",
+    "check-rules": "tsx sdk.ts checkRules",
+    "quick-demo": "tsx quick-demo.ts",
+    "working-demo": "tsx working-demo.ts",
+    "real-demo": "tsx real-demo.ts",
+    "forte-cloud-demo": "tsx forte-cloud-demo.ts",
+    "debug-demo": "tsx debug-demo.ts",
+    "complete-demo": "tsx complete-integration-demo.ts",
+    "test-typescript": "npx tsc --noEmit",
+    "validate-setup": "node test-fix.js"
+  },
+  "dependencies": {
+    "ethers": "^6.8.0",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "typescript": "^5.2.2",
+    "@types/node": "^20.8.0"
+  },
+  "keywords": ["RWA", "DeFi", "Institutional", "Compliance", "FORTE", "ZK-PRET", "PYUSD"],
+  "author": "Institutional RWA Team",
+  "license": "MIT"
+}
